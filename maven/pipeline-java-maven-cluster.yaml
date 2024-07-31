@@ -1,0 +1,79 @@
+﻿apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: java-maven-cluster
+spec:
+  params:
+    - default: TestAPPClusterTask
+      name: APPLICATION_NAME
+      type: string
+    - default: 'https://github.com/sudhishmk/deploying-environments'
+      name: GIT_URL
+      type: string
+    - default: main
+      name: GIT_BRANCH
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+        - name: revision
+          value: $(params.GIT_BRANCH)
+        - name: subdirectory
+          value: $(params.APPLICATION_NAME)/$(params.GIT_BRANCH)
+        - name: deleteExisting
+          value: 'true'
+        - name: sslVerify
+          value: 'false'
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: mvn-build
+      params:
+        - name: CONTEXT_DIR
+          value: $(params.APPLICATION_NAME)/$(params.GIT_BRANCH)
+        - name: GOALS
+          value:
+            - '-B'
+            - clean
+            - package
+            - '-DskipTests'
+            - '-Dmaven.wagon.http.ssl.insecure=true'
+            - '--no-transfer-progress'
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: ClusterTask
+        name: maven
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: maven-settings
+          workspace: maven-settings
+    - name: mvn-test
+      params:
+        - name: CONTEXT_DIR
+          value: $(params.APPLICATION_NAME)/$(params.GIT_BRANCH)
+        - name: GOALS
+          value:
+            - '-B'
+            - verify
+            - '-Dmaven.wagon.http.ssl.insecure=true'
+            - '--no-transfer-progress'
+      runAfter:
+        - mvn-build
+      taskRef:
+        kind: ClusterTask
+        name: maven
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: maven-settings
+          workspace: maven-settings
+  workspaces:
+    - name: shared-workspace
+    - name: maven-settings
