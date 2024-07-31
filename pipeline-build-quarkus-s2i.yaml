@@ -1,0 +1,80 @@
+﻿apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-quarkus-s2i
+  namespace: quarkus-pipeline-demo-s2i
+spec:
+  params:
+    - description: name of the deployment to be patched
+      name: deployment-name
+      type: string
+    - description: name of the namespace to which the app should be deployed
+      name: namespace-name
+      type: string
+    - description: url of the git repo for the code of deployment
+      name: git-url
+      type: string
+    - default: main
+      description: revision to be used from repo of the code for deployment
+      name: git-revision
+      type: string
+    - description: image to be build from the code
+      name: IMAGE
+      type: string
+  tasks:
+    - name: fetch-repository
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: subdirectory
+          value: ''
+        - name: deleteExisting
+          value: 'true'
+        - name: revision
+          value: $(params.git-revision)
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: build-image
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+      runAfter:
+        - fetch-repository
+      taskRef:
+        kind: ClusterTask
+        name: s2i-java
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: deploy-app
+      params:
+        - name: deployment-name
+          value: $(params.deployment-name)
+        - name: namespace-name
+          value: $(params.namespace-name)
+        - name: SCRIPT
+          value: oc new-app $(params.deployment-name) -n $(params.namespace-name)
+      runAfter:
+        - build-image
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client
+    - name: expose-service
+      params:
+        - name: deployment-name
+          value: $(params.deployment-name)
+        - name: namespace-name
+          value: $(params.namespace-name)
+        - name: SCRIPT
+          value: oc expose svc $(params.deployment-name) -n $(params.namespace-name)
+      runAfter:
+        - deploy-app
+      taskRef:
+        kind: ClusterTask
+        name: openshift-client
+  workspaces:
+    - name: shared-workspace

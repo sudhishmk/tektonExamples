@@ -1,0 +1,6 @@
+tkn pipeline start build-quarkus-s2i-finally \
+    --workspace name=shared-workspace,volumeClaimTemplateFile=https://raw.githubusercontent.com/openshift/pipelines-tutorial/pipelines-1.5/01_pipeline/03_persistent_volume_claim.yaml \
+    -p deployment-name=$APP_NAME \
+    -p git-url=$GIT_REPO \
+     -p IMAGE=image-registry.openshift-image-registry.svc:5000/$NAMESPACE/$APP_NAME \
+    --use-param-defaults

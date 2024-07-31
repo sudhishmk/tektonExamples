@@ -1,0 +1,71 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-quarkus-s2i-finally
+spec:
+  workspaces:
+  - name: shared-workspace
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "main"
+  - name: IMAGE
+    type: string
+    description: image to be build from the code
+  - name: aggregateTasksStatus
+    type: string
+    description: Aggregated status of all tasks executed in the pipeline
+    default: false
+  tasks:
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+  - name: build-image
+    taskRef:
+      name: s2i-java
+      kind: ClusterTask
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - fetch-repository
+  finally:
+  - name: finaltask
+    params:
+    - name: aggregateTasksStatus
+      value: "$(tasks.status)"
+    - name: server
+      value: server-secret
+    - name: subject
+      value: "$(tasks.status)"
+    - name: body
+      value: "$(tasks.status)"
+    - name: sender
+      value: "sudhinonofficial@gmail.com"
+    - name: recipients
+      value: "sudhishmk@gmail.com"
+    taskRef:
+      name: sendmail
