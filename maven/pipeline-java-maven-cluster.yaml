@@ -1,10 +1,10 @@
 ﻿apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: java-maven-cluster
+  name: java-using-maven-cluster-task
 spec:
   params:
-    - default: TestAPPClusterTask
+    - default: TestAppWithClusterTask
       name: APPLICATION_NAME
       type: string
     - default: 'https://github.com/sudhishmk/deploying-environments'
@@ -14,7 +14,7 @@ spec:
       name: GIT_BRANCH
       type: string
   tasks:
-    - name: git-clone
+    - name: clone-repo
       params:
         - name: url
           value: $(params.GIT_URL)
@@ -32,7 +32,7 @@ spec:
       workspaces:
         - name: output
           workspace: shared-workspace
-    - name: mvn-build
+    - name: build-repo
       params:
         - name: CONTEXT_DIR
           value: $(params.APPLICATION_NAME)/$(params.GIT_BRANCH)
@@ -45,7 +45,7 @@ spec:
             - '-Dmaven.wagon.http.ssl.insecure=true'
             - '--no-transfer-progress'
       runAfter:
-        - git-clone
+        - clone-repo
       taskRef:
         kind: ClusterTask
         name: maven
@@ -54,7 +54,7 @@ spec:
           workspace: shared-workspace
         - name: maven-settings
           workspace: maven-settings
-    - name: mvn-test
+    - name: test-project
       params:
         - name: CONTEXT_DIR
           value: $(params.APPLICATION_NAME)/$(params.GIT_BRANCH)
@@ -65,7 +65,7 @@ spec:
             - '-Dmaven.wagon.http.ssl.insecure=true'
             - '--no-transfer-progress'
       runAfter:
-        - mvn-build
+        - build-repo
       taskRef:
         kind: ClusterTask
         name: maven
