@@ -48,7 +48,7 @@ spec:
         - clone-repo
       taskRef:
         kind: Task
-        name: maven-hub
+        name: maven
       workspaces:
         - name: source
           workspace: shared-workspace
@@ -68,7 +68,7 @@ spec:
         - build-repo
       taskRef:
         kind: Task
-        name: maven-hub
+        name: maven
       workspaces:
         - name: source
           workspace: shared-workspace
