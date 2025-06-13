@@ -1,0 +1,14 @@
+﻿apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: custom-event-listener
+spec:
+  namespaceSelector: {}
+  resources: {}
+  serviceAccountName: pipeline
+  triggers:
+    - bindings:
+        - kind: TriggerBinding
+          ref: custom-event-binding
+      template:
+        ref: service-status-template

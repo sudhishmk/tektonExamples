@@ -1,0 +1,22 @@
+﻿apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: log-service-status-pipeline-with-taskref
+spec:
+  params:
+    - description: The name of the service to report.
+      name: service-name-param
+      type: string
+    - description: 'The status of the service'
+      name: service-status-param
+      type: string
+  tasks:
+    - name: log-status-step
+      params:
+        - name: service-name
+          value: $(params.service-name-param)
+        - name: service-status
+          value: $(params.service-status-param)
+      taskRef:
+        kind: Task
+        name: log-service-status-task

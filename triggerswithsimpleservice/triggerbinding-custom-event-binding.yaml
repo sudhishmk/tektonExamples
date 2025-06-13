@@ -1,0 +1,10 @@
+﻿apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: custom-event-binding
+spec:
+  params:
+    - name: service_name
+      value: $(body.serviceName)
+    - name: service_status
+      value: $(body.status)

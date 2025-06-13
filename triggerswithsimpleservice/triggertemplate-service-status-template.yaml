@@ -1,0 +1,23 @@
+﻿apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: service-status-template
+spec:
+  params:
+    - description: The name of the service
+      name: service_name
+    - description: The updated status of the service
+      name: service_status
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: custom-event-status-
+      spec:
+        params:
+          - name: service-name-param
+            value: $(tt.params.service_name)
+          - name: service-status-param
+            value: $(tt.params.service_status)
+        pipelineRef:
+          name: log-service-status-pipeline

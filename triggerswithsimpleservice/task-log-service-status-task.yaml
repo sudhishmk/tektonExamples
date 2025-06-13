@@ -1,0 +1,22 @@
+﻿apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: log-service-status-task
+spec:
+  params:
+    - description: The name of the service to log status for.
+      name: service-name
+      type: string
+    - description: The status of the service to log.
+      name: service-status
+      type: string
+  steps:
+    - computeResources: {}
+      image: 'gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1'
+      name: print-message
+      script: |
+        #!/bin/sh
+        echo "--- Service Status Update ---"
+        echo "Service: $(params.service-name)"  
+        echo "Status: $(params.service-status)"   
+        echo "-----------------------------"
