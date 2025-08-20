@@ -7,6 +7,8 @@
    apiVersion: v1
    metadata:
      name: basic-user-pass
+     annotations:
+       tekton.dev/git-0: 'https://github.com'
    data:
      password: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
      username: xxxxxxxxxxxxxxxxxxxxx
