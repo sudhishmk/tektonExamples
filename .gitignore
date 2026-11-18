@@ -1,0 +1,3 @@
+**/server-secret.yaml
+gitcloneprivate/secret-basic-user-pass.yaml
+triggers/secret.yaml

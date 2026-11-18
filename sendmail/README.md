@@ -7,7 +7,7 @@
     oc and tkn CLI installed
 
 
-# Update with "server-secret.yaml" with your smtp server details.
+# Copy `tkn/server-secret.example.yaml` to `tkn/server-secret.yaml` and set your SMTP details locally. The local file is ignored by Git. If a previously committed password was real, revoke it.
 If you are using gmail as smtp server, generate APP password and use it as password in your secrets
 
 # Sample Parameters for the Pipeline
