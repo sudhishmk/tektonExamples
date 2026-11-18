@@ -1,5 +1,7 @@
 ## GitHub EventListener
 
+Copy `secret.example.yaml` to `secret.yaml` and set a new webhook secret before applying the manifests. The local secret file is ignored by Git. Rotate any real secret used in an earlier commit.
+
 Creates an EventListener that listens for GitHub webhook events.
 
 ### Try it out locally:
@@ -7,7 +9,8 @@ Creates an EventListener that listens for GitHub webhook events.
 1. To create the GitHub trigger and all related resources, run:
 
    ```bash
-   kubectl apply -f .
+   kubectl apply -f secret.yaml
+   kubectl apply -f rbac.yaml -f github-eventlistener-interceptor.yaml
    ```
 
 1. Port forward:

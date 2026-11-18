@@ -1,6 +1,6 @@
 1. Create Git personal access token with permissions to access the required repo.
 
-2. Create a secret with username and PAT. Ensure that secret is created in same namespace where taskrun is executed.
+2. Copy `secret-basic-user-pass.example.yaml` to `secret-basic-user-pass.yaml`, replace the placeholder values with a username and a newly scoped token, and apply it in the same namespace as the TaskRun. The local secret file is ignored by Git. If a token from an earlier version of this repository was real, revoke it.
 
    ```yaml
    kind: Secret
@@ -9,9 +9,9 @@
      name: basic-user-pass
      annotations:
        tekton.dev/git-0: 'https://github.com'
-   data:
-     password: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-     username: xxxxxxxxxxxxxxxxxxxxx
+   stringData:
+     password: REPLACE_WITH_GIT_TOKEN
+     username: REPLACE_WITH_GIT_USERNAME
    type: kubernetes.io/basic-auth
    ```
 
